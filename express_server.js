@@ -63,11 +63,18 @@ app.get('/urls/:shortUrl', (req, res) => {
   res.render('urls_show', templateVars);
 });
 
+app.get('/u/:shortUrl', (req, res) => {
+  const longUrl = urlDatabase[req.params.shortUrl];
+  res.redirect(longUrl);
+});
+
+
+// ===== POST =====
 app.post('/urls', (req, res) => {
   const shortUrl = generateRandomString(6);
   urlDatabase[shortUrl] = req.body.longUrl;
   
-  res.send(`ok. Short URL: ${JSON.stringify(shortUrl)}`);
+  res.redirect(`/urls/${shortUrl}`);
 })
 
 app.listen(PORT, () => {
