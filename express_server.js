@@ -22,12 +22,15 @@ const generateRandomString = (length) => {
 };
 
 const express = require('express');
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+
 const app = express();
 const PORT = 8080; // default port 8080
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
 
 const urlDatabase = {
   'b2xVn2': 'http://www.lighthouselabs.ca',
@@ -95,6 +98,13 @@ app.post('/urls/:shortUrl/delete', (req, res) => {
   res.render('urls_index', templateVars);
 });
 
+// ==== /login ====
+app.post('/login', (req, res) => {
+  console.log(req.body.login);
+  res.cookie('username', req.body.login);
+  const templateVars = {urls: urlDatabase};
+  res.render('urls_index', templateVars);
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening to port ${PORT}`);
