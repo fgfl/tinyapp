@@ -1,7 +1,7 @@
 /**
  * Dec 9, 2019
  * Frederick Lee
- * 
+ *
  * https://web.compass.lighthouselabs.ca/days/w03d1/activities/169
  */
 
@@ -14,7 +14,7 @@ const generateRandomString = (length) => {
   const charLength = characters.length;
   let res = '';
 
-  for (let i = 0; i < length; i++ ) {
+  for (let i = 0; i < length; i++) {
     res += characters.charAt(Math.floor(Math.random() * charLength));
   }
   
@@ -63,7 +63,7 @@ app.post('/urls', (req, res) => {
   urlDatabase[shortUrl] = req.body.longUrl;
   
   res.redirect(`/urls/${shortUrl}`);
-})
+});
 
 // === /urls/new ====
 app.get('/urls/new', (req, res) => {
@@ -123,6 +123,14 @@ app.post('/logout', (req, res) => {
   res
     .clearCookie('username')
     .redirect('/urls');
+});
+
+// ==== /register =====
+app.get('/register', (req, res) => {
+  const templateVars = {
+    username: req.cookies.username,
+  };
+  res.render('urls_register', templateVars);
 });
 
 app.listen(PORT, () => {
