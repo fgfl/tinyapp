@@ -162,6 +162,13 @@ app.post('/urls/:shortUrl/delete', (req, res) => {
 });
 
 // ==== /login ====
+app.get('/login', (req, res) => {
+  const templateVars = {
+    user: getUser(req.cookies[userIdCookie]),
+  }
+  res.render('urls_login', templateVars);
+});
+
 app.post('/login', (req, res) => {
   const user = getUserByEmail(req.body.login);
   if (user) {
