@@ -46,6 +46,17 @@ const users = {
   },
 };
 
+// Helper functions
+const isRegisteredEmail = (email) => {
+  for (userID in users) {
+    if (users[userID].email === email) {
+    console.log('true');
+      return true;
+    }
+  }  
+  return false;
+};
+
 // Endpoints
 app.get('/', (req, res) => {
   res.send('Hello!');
@@ -144,15 +155,24 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-  const user = {
-    id: generateRandomString(6),
-    email: req.body.email,
-    password: req.body.password,
-  };
-  users[user.id] = user;
-  res
-    .cookie('username', user.id)
-    .redirect('/urls');
+  const reqEmail = req.body.email;
+  const reqPw = req.body.password;
+
+  if (reqEmail === '' || reqPw === '') {
+    res.sendStatus(400);
+  } else if (isRegisteredEmail(reqEmail)) {
+    res.status(400).send('Email registered');
+  } else {
+    const user = {
+      id: generateRandomString(6),
+      email: reqEmail,
+      password: reqPw,
+    };
+    users[user.id] = user;
+    res
+      .cookie('username', user.id)
+      .redirect('/urls');
+  }
 });
 
 app.listen(PORT, () => {
