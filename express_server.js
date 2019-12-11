@@ -51,7 +51,10 @@ app.get('/hello', (req, res) => {
 
 // === /urls ===
 app.get('/urls', (req, res) => {
-  let templateVars = {urls: urlDatabase};
+  const templateVars = {
+    urls: urlDatabase,
+    username: req.cookies.username,
+  };
   res.render('urls_index', templateVars);
 });
 
@@ -64,7 +67,10 @@ app.post('/urls', (req, res) => {
 
 // === /urls/new ====
 app.get('/urls/new', (req, res) => {
-  res.render('urls_new');
+  const templateVars = {
+    username: req.cookies.username,
+  };
+  res.render('urls_new', templateVars);
 });
 
 // === /urls/:shortUrl ===
@@ -72,6 +78,7 @@ app.get('/urls/:shortUrl', (req, res) => {
   let templateVars = {
     shortUrl: req.params.shortUrl,
     longUrl: urlDatabase[req.params.shortUrl],
+    username: req.cookies.username,
   };
   res.render('urls_show', templateVars);
 });
@@ -79,7 +86,10 @@ app.get('/urls/:shortUrl', (req, res) => {
 app.post('/urls/:shortUrl', (req, res) => {
   const shortUrl = req.params.shortUrl;
   urlDatabase[shortUrl] = req.body.longUrl;
-  const templateVars = {urls: urlDatabase};
+  const templateVars = {
+    urls: urlDatabase,
+    username: req.cookies.username,
+  };
   res.render('urls_index', templateVars);
 });
 
@@ -94,16 +104,22 @@ app.get('/u/:shortUrl', (req, res) => {
 app.post('/urls/:shortUrl/delete', (req, res) => {
   const shortUrl = req.params.shortUrl;
   delete urlDatabase[shortUrl];
-  const templateVars = {urls: urlDatabase};
+  const templateVars = {
+    urls: urlDatabase,
+    username: req.cookies.username,
+  };
   res.render('urls_index', templateVars);
 });
 
 // ==== /login ====
 app.post('/login', (req, res) => {
-  const templateVars = {urls: urlDatabase};
+  const templateVars = {
+    urls: urlDatabase,
+    username: req.cookies.username
+  };
   res
     .cookie('username', req.body.login)
-    .render('urls_index', templateVars);
+    .redirect('/urls');
 });
 
 app.listen(PORT, () => {

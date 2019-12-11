@@ -16,6 +16,10 @@
     </div>
     <form class="form-inline" method="POST" action="/login">
       <div>
+        <% console.log(username); %>
+        <% if ( username ) { %>
+          <h5><%= username %></h5>
+        <% } %>
         <input class="form-control" type="text" name="login" placeholder="Username" style="margin:1em">
         <button type="submit" class="btn btn-primary">Log In</button>
       </div>
