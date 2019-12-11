@@ -100,10 +100,10 @@ app.post('/urls/:shortUrl/delete', (req, res) => {
 
 // ==== /login ====
 app.post('/login', (req, res) => {
-  console.log(req.body.login);
-  res.cookie('username', req.body.login);
   const templateVars = {urls: urlDatabase};
-  res.render('urls_index', templateVars);
+  res
+    .cookie('username', req.body.login)
+    .render('urls_index', templateVars);
 });
 
 app.listen(PORT, () => {
