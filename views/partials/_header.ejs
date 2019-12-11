@@ -14,15 +14,22 @@
         <a class="nav-itme nav-link" href="/urls/new">Create New Url</a>
       </div>
     </div>
-    <form class="form-inline" method="POST" action="/login">
-      <div>
-        <% console.log(username); %>
-        <% if ( username ) { %>
-          <h5><%= username %></h5>
-        <% } %>
-        <input class="form-control" type="text" name="login" placeholder="Username" style="margin:1em">
-        <button type="submit" class="btn btn-primary">Log In</button>
-      </div>
-    </form>
+
+    <% if (username) { %>
+      <form class="form-inline" method="POST" action="/logout">
+        <div>
+          <label for="user"><%= username %> 
+            <button name="user" type="submit" class="btn btn-primary">Log out</button>
+          </label>
+        </div>
+      </form>
+    <% } else { %>
+      <form class="form-inline" method="POST" action="/login">
+        <div>
+          <input class="form-control" type="text" name="login" placeholder="Username" style="margin:1em">
+          <button type="submit" class="btn btn-primary">Log In</button>
+        </div>
+      </form>
+    <% } %>
   </nav>
 </header>

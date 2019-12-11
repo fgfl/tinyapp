@@ -113,12 +113,15 @@ app.post('/urls/:shortUrl/delete', (req, res) => {
 
 // ==== /login ====
 app.post('/login', (req, res) => {
-  const templateVars = {
-    urls: urlDatabase,
-    username: req.cookies.username
-  };
   res
     .cookie('username', req.body.login)
+    .redirect('/urls');
+});
+
+// ==== /logout ====
+app.post('/logout', (req, res) => {
+  res
+    .clearCookie('username')
     .redirect('/urls');
 });
 
