@@ -131,13 +131,18 @@ app.get('/urls/new', (req, res) => {
 // === /urls/:shortUrl ===
 app.get('/urls/:shortUrl', (req, res) => {
   const shortUrl = req.params.shortUrl;
+  const user = getUser(req.cookies[userIdCookie]);
+  if (user) {
+    let templateVars = {
+      shortUrl: shortUrl,
+      longUrl: urlDatabase[shortUrl].longUrl,
+      user: user,
+    };
+    res.render('urls_show', templateVars);
+  } else {
+    res.redirect('/login');
+  }
 
-  let templateVars = {
-    shortUrl: shortUrl,
-    longUrl: urlDatabase[shortUrl].longUrl,
-    user: getUser(req.cookies[userIdCookie]),
-  };
-  res.render('urls_show', templateVars);
 });
 
 app.post('/urls/:shortUrl', (req, res) => {
