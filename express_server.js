@@ -117,10 +117,15 @@ app.post('/urls', (req, res) => {
 
 // === /urls/new ====
 app.get('/urls/new', (req, res) => {
-  const templateVars = {
-    user: getUser(req.cookies[userIdCookie]),
-  };
-  res.render('urls_new', templateVars);
+  const user = getUser(req.cookies[userIdCookie]);
+  if (user) {
+    const templateVars = {
+      user: user,
+    };
+    res.render('urls_new', templateVars);
+  } else {
+    res.redirect('/login');
+  }
 });
 
 // === /urls/:shortUrl ===
