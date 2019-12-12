@@ -41,7 +41,7 @@ const urlDatabase = {
 const users = {
   'userRandomID': {
     id: 'userRandomID',
-    email: 'userRandomEmail',
+    email: 'random@hotmail.com',
     password: 'password',
   },
 };
@@ -79,6 +79,7 @@ const getUser = (userId) => {
  */
 const getUserByEmail = (email) => {
   for (const userId in users) {
+    console.log(getUserByEmail.name, 'userId: ', userId, 'email:', email);
     if (users[userId].email === email) {
       return users[userId];
     }
@@ -163,18 +164,32 @@ app.post('/urls/:shortUrl/delete', (req, res) => {
 
 // ==== /login ====
 app.get('/login', (req, res) => {
+  if (req.status === 400) {
+    alert('Invalid Login');
+  }
   const templateVars = {
-    user: getUser(req.cookies[userIdCookie]),
+    user: getUserByEmail(req.cookies[userIdCookie]),
   }
   res.render('urls_login', templateVars);
 });
 
 app.post('/login', (req, res) => {
-  const user = getUserByEmail(req.body.login);
-  if (user) {
-    res.cookie(userIdCookie, user.id);
+  const reqEmail = req.body.email;
+  const reqPw = req.body.password;
+
+  const user = getUserByEmail(reqEmail);
+  console.log(user);
+  if (user && user.password === reqPw) {
+    res
+      .cookie(userIdCookie, user.id)
+      .redirect('/urls');
+  } else {
+  const templateVars = {
+    user: getUser(req.cookies[userIdCookie]),
   }
-  res.redirect('/urls');
+    res
+      .status(400).render('urls_login', templateVars);
+  }
 });
 
 // ==== /logout ====
