@@ -24,6 +24,7 @@ const generateRandomString = (length) => {
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
 
 const app = express();
 const PORT = 8080; // default port 8080
@@ -47,6 +48,7 @@ const users = {
 };
 
 const userIdCookie = 'user_id';
+const saltRounds = 10;
 
 // Helper functions
 /**
@@ -282,19 +284,23 @@ app.get('/register', (req, res) => {
 
 app.post('/register', (req, res) => {
   const reqEmail = req.body.email;
-  const reqPw = req.body.password;
+  let reqPw = req.body.password;
 
   if (reqEmail === '' || reqPw === '') {
     res.sendStatus(400);
   } else if (isRegisteredEmail(reqEmail)) {
     res.status(400).send('Email registered');
   } else {
+    const hashedPw = bcrypt.hashSync(reqPw, saltRounds);
+    reqPw = '';
+
     const user = {
       id: generateRandomString(6),
       email: reqEmail,
-      password: reqPw,
+      password: hashedPw,
     };
     users[user.id] = user;
+    console.log(users);
     res
       .cookie(userIdCookie, user.id)
       .redirect('/urls');
