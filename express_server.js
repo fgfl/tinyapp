@@ -196,16 +196,20 @@ app.post('/urls/:shortUrl', (req, res) => {
   const shortUrl = req.params.shortUrl;
   
   if (user) {
-    urlDatabase[shortUrl] = {
-      longUrl: req.body.longUrl,
-      userId: user.id,
-    };
+    if (isUserUrl(shortUrl, user)) {
+      urlDatabase[shortUrl] = {
+        longUrl: req.body.longUrl,
+        userId: user.id,
+      };
 
-    const templateVars = {
-      urls: urlsForUser(user.id),
-      user: user,
-    };
-    res.render('urls_index', templateVars);
+      const templateVars = {
+        urls: urlsForUser(user.id),
+        user: user,
+      };
+      res.render('urls_index', templateVars);
+    } else {
+      res.redirect('/urls');
+    }
   } else {
     res.redirect('/login');
   }
