@@ -42,7 +42,6 @@ const getUserByEmail = (email, userDatabase) => {
       return userDatabase[userId];
     }
   }
-  return null;
 };
 
 /**
@@ -69,7 +68,7 @@ const urlsForUser = (id, urlDatabase) => {
  * @returns {boolean} true if the url's user id is user.id. false otherwise
  */
 const isUserUrl = (shortUrl, user, urlDatabase) => {
-  if (urlDatabase[shortUrl].userId === user.id) {
+  if (urlDatabase[shortUrl] && urlDatabase[shortUrl].userId === user.id) {
     return true;
   }
   return false;

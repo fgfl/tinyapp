@@ -32,7 +32,7 @@ const {
   getUserByEmail,
   urlsForUser,
   isUserUrl,
-} = require('./helper');
+} = require('./helpers');
 
 const app = express();
 const PORT = 8080; // default port 8080
