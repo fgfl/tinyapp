@@ -224,13 +224,23 @@ app.get('/u/:shortUrl', (req, res) => {
 
 // ===== /urls/:shortUrl/delete =====
 app.post('/urls/:shortUrl/delete', (req, res) => {
+  const user = getUser(req.cookies[userIdCookie]);
   const shortUrl = req.params.shortUrl;
-  delete urlDatabase[shortUrl];
-  const templateVars = {
-    urls: urlDatabase,
-    user: getUser(req.cookies[userIdCookie]),
-  };
-  res.render('urls_index', templateVars);
+
+  if (user) {
+    if (isUserUrl(shortUrl, user)) {
+      delete urlDatabase[shortUrl];
+      const templateVars = {
+        urls: urlDatabase,
+        user: user,
+      };
+      res.render('urls_index', templateVars);
+    } else {
+      res.redirect('/urls');
+    }
+  } else {
+    res.redirect('/login');
+  }
 });
 
 // ==== /login ====
