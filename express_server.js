@@ -302,7 +302,6 @@ app.post('/register', (req, res) => {
       password: hashedPw,
     };
     users[user.id] = user;
-    console.log(users);
     res
       .cookie(userIdCookie, user.id)
       .redirect('/urls');
