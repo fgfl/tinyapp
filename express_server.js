@@ -26,6 +26,13 @@ const bodyParser = require('body-parser');
 // const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
+const {
+  isRegisteredEmail,
+  getUser,
+  getUserByEmail,
+  urlsForUser,
+  isUserUrl,
+} = require('./helper');
 
 const app = express();
 const PORT = 8080; // default port 8080
@@ -59,71 +66,6 @@ const users = {
 };
 
 
-// Helper functions
-/**
- * Checks if the email is already in the database or not
- * @param {string} email
- * @returns {boolean} true if email is in the database. false otherwise
- */
-const isRegisteredEmail = (email) => {
-  for (const userId in users) {
-    if (users[userId].email === email) {
-      return true;
-    }
-  }
-  return false;
-};
-
-/**
- * Gets the user object given the user ID
- * @param {string} userId The code for the specific user. The code is generated with our random string function
- * @returns {object} user object. undefined if not found
- */
-const getUser = (userId) => {
-  return users[userId];
-};
-
-/**
- * Finds the user object in the "users" database given the email
- * @param {string} email email registerd with the user to find
- * @returns {object} the user object. null if not found.
- */
-const getUserByEmail = (email) => {
-  for (const userId in users) {
-    if (users[userId].email === email) {
-      return users[userId];
-    }
-  }
-  return null;
-};
-
-/**
- * Returns an object of all the URLs in urlDatabase that belong to user
- * @param {string} user user's id from the user object {id, email, password}
- * @returns {obj}
- */
-const urlsForUser = (id) => {
-  const userUrls = {};
-  for (const shortUrlKey in urlDatabase) {
-    if (urlDatabase[shortUrlKey].userId === id) {
-      userUrls[shortUrlKey] = urlDatabase[shortUrlKey];
-    }
-  }
-  return userUrls;
-};
-
-/**
- * Checks if the shortUrl belongs to the user
- * @param {string} shortUrl key of urlDatabase
- * @param {object} user user object
- * @returns {boolean} true if the url's user id is user.id. false otherwise
- */
-const isUserUrl = (shortUrl, user) => {
-  if (urlDatabase[shortUrl].userId === user.id) {
-    return true;
-  }
-  return false;
-};
 
 //==============================
 // Endpoints
@@ -143,10 +85,10 @@ app.get('/hello', (req, res) => {
 // === /urls ===
 app.get('/urls', (req, res) => {
   let userUrls = {};
-  const user = getUser(req.session[userIdCookie]);
+  const user = getUser(req.session[userIdCookie], users);
 
   if (user) {
-    userUrls = urlsForUser(user.id);
+    userUrls = urlsForUser(user.id, urlDatabase);
   }
 
   const templateVars = {
@@ -158,7 +100,7 @@ app.get('/urls', (req, res) => {
 
 app.post('/urls', (req, res) => {
   const shortUrl = generateRandomString(6);
-  const user = getUser(req.session[userIdCookie]);
+  const user = getUser(req.session[userIdCookie], users);
   urlDatabase[shortUrl] = {
     longUrl: req.body.longUrl,
     userId: user.id,
@@ -169,7 +111,7 @@ app.post('/urls', (req, res) => {
 
 // === /urls/new ====
 app.get('/urls/new', (req, res) => {
-  const user = getUser(req.session[userIdCookie]);
+  const user = getUser(req.session[userIdCookie], users);
   if (user) {
     const templateVars = {
       user: user,
@@ -183,11 +125,11 @@ app.get('/urls/new', (req, res) => {
 // === /urls/:shortUrl ===
 app.get('/urls/:shortUrl', (req, res) => {
   const shortUrl = req.params.shortUrl;
-  const user = getUser(req.session[userIdCookie]);
+  const user = getUser(req.session[userIdCookie], users);
 
   if (user) {
     // need to check this in case user enters short url directly into address bar
-    if (isUserUrl(shortUrl, user)) {
+    if (isUserUrl(shortUrl, user, urlDatabase)) {
       let templateVars = {
         shortUrl: shortUrl,
         longUrl: urlDatabase[shortUrl].longUrl,
@@ -204,18 +146,18 @@ app.get('/urls/:shortUrl', (req, res) => {
 });
 
 app.post('/urls/:shortUrl', (req, res) => {
-  const user = getUser(req.session[userIdCookie]);
+  const user = getUser(req.session[userIdCookie], users);
   const shortUrl = req.params.shortUrl;
   
   if (user) {
-    if (isUserUrl(shortUrl, user)) {
+    if (isUserUrl(shortUrl, user, urlDatabase)) {
       urlDatabase[shortUrl] = {
         longUrl: req.body.longUrl,
         userId: user.id,
       };
 
       const templateVars = {
-        urls: urlsForUser(user.id),
+        urls: urlsForUser(user.id, urlDatabase),
         user: user,
       };
       res.render('urls_index', templateVars);
@@ -236,14 +178,14 @@ app.get('/u/:shortUrl', (req, res) => {
 
 // ===== /urls/:shortUrl/delete =====
 app.post('/urls/:shortUrl/delete', (req, res) => {
-  const user = getUser(req.session[userIdCookie]);
+  const user = getUser(req.session[userIdCookie], users);
   const shortUrl = req.params.shortUrl;
 
   if (user) {
-    if (isUserUrl(shortUrl, user)) {
+    if (isUserUrl(shortUrl, user, urlDatabase)) {
       delete urlDatabase[shortUrl];
       const templateVars = {
-        urls: urlsForUser(user.id),
+        urls: urlsForUser(user.id, urlDatabase),
         user: user,
       };
       res.render('urls_index', templateVars);
@@ -258,7 +200,7 @@ app.post('/urls/:shortUrl/delete', (req, res) => {
 // ==== /login ====
 app.get('/login', (req, res) => {
   const templateVars = {
-    user: getUserByEmail(req.session[userIdCookie]),
+    user: getUser(req.session[userIdCookie], users),
   };
   res.render('urls_login', templateVars);
 });
@@ -267,7 +209,7 @@ app.post('/login', (req, res) => {
   const reqEmail = req.body.email;
   let reqPw = req.body.password;
 
-  const user = getUserByEmail(reqEmail);
+  const user = getUserByEmail(reqEmail, users);
   if (user && bcrypt.compareSync(reqPw, user.password)) {
     reqPw = '';
     req.session[userIdCookie] = user.id;
@@ -286,7 +228,7 @@ app.post('/logout', (req, res) => {
 // ==== /register =====
 app.get('/register', (req, res) => {
   const templateVars = {
-    user: getUser(req.session[userIdCookie]),
+    user: getUser(req.session[userIdCookie], users),
   };
   res.render('urls_register', templateVars);
 });
@@ -297,7 +239,7 @@ app.post('/register', (req, res) => {
 
   if (reqEmail === '' || reqPw === '') {
     res.sendStatus(400);
-  } else if (isRegisteredEmail(reqEmail)) {
+  } else if (isRegisteredEmail(reqEmail, users)) {
     res.status(400).send('Email registered');
   } else {
     const hashedPw = bcrypt.hashSync(reqPw, saltRounds);
