@@ -79,7 +79,6 @@ const getUser = (userId) => {
  */
 const getUserByEmail = (email) => {
   for (const userId in users) {
-    console.log(getUserByEmail.name, 'userId: ', userId, 'email:', email);
     if (users[userId].email === email) {
       return users[userId];
     }
@@ -164,9 +163,6 @@ app.post('/urls/:shortUrl/delete', (req, res) => {
 
 // ==== /login ====
 app.get('/login', (req, res) => {
-  if (req.status === 400) {
-    alert('Invalid Login');
-  }
   const templateVars = {
     user: getUserByEmail(req.cookies[userIdCookie]),
   }
@@ -178,17 +174,12 @@ app.post('/login', (req, res) => {
   const reqPw = req.body.password;
 
   const user = getUserByEmail(reqEmail);
-  console.log(user);
   if (user && user.password === reqPw) {
     res
       .cookie(userIdCookie, user.id)
       .redirect('/urls');
   } else {
-  const templateVars = {
-    user: getUser(req.cookies[userIdCookie]),
-  }
-    res
-      .status(400).render('urls_login', templateVars);
+    res.status(403).send('Invalid login');
   }
 });
 
