@@ -34,6 +34,9 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
 // Global Data structure for storage
+const userIdCookie = 'user_id';
+const saltRounds = 10;
+
 const urlDatabase = {
   'b2xVn2': {longUrl: 'http://www.lighthouselabs.ca', userId: 'userRandomID'},
   '9sm5xK': {longUrl: 'http://www.google.com', userId: 'aJ48lW'},
@@ -43,12 +46,10 @@ const users = {
   'userRandomID': {
     id: 'userRandomID',
     email: 'random@hotmail.com',
-    password: 'password',
+    password: bcrypt.hashSync('password', saltRounds),
   },
 };
 
-const userIdCookie = 'user_id';
-const saltRounds = 10;
 
 // Helper functions
 /**
