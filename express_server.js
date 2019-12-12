@@ -92,14 +92,27 @@ const getUserByEmail = (email) => {
  * @param {obj} user user object {id, email, password}
  * @returns {obj}
  */
-const getUserUrls = (urlDatabase, user) => {
+const urlsForUser = (id) => {
   const userUrls = {};
   for (const shortUrlKey in urlDatabase) {
-    if (urlDatabase[shortUrlKey].userId === user.id) {
+    if (urlDatabase[shortUrlKey].userId === id) {
       userUrls[shortUrlKey] = urlDatabase[shortUrlKey];
     }
   }
   return userUrls;
+};
+
+/**
+ * Checks if the shortUrl belongs to the user
+ * @param {string} shortUrl key of urlDatabase
+ * @param {object} user user object
+ * @returns {boolean} true if the url's user id is user.id. false otherwise
+ */
+const isUserUrl = (shortUrl, user) => {
+  if (urlDatabase[shortUrl].userId === user.id) {
+    return true;
+  }
+  return false;
 };
 
 // Endpoints
@@ -121,7 +134,7 @@ app.get('/urls', (req, res) => {
   const user = getUser(req.cookies[userIdCookie]);
 
   if (user) {
-    userUrls = getUserUrls(urlDatabase, user);
+    userUrls = urlsForUser(user.id);
   }
 
   const templateVars = {
@@ -161,12 +174,17 @@ app.get('/urls/:shortUrl', (req, res) => {
   const user = getUser(req.cookies[userIdCookie]);
 
   if (user) {
-    let templateVars = {
-      shortUrl: shortUrl,
-      longUrl: urlDatabase[shortUrl].longUrl,
-      user: user,
-    };
-    res.render('urls_show', templateVars);
+    // need to check this in case user enters short url directly into address bar
+    if (isUserUrl(shortUrl, user)) {
+      let templateVars = {
+        shortUrl: shortUrl,
+        longUrl: urlDatabase[shortUrl].longUrl,
+        user: user,
+      };
+      res.render('urls_show', templateVars);
+    } else {
+      res.redirect('/urls');
+    }
   } else {
     res.redirect('/login');
   }
@@ -184,7 +202,7 @@ app.post('/urls/:shortUrl', (req, res) => {
     };
 
     const templateVars = {
-      urls: getUserUrls(urlDatabase, user),
+      urls: urlsForUser(user.id),
       user: user,
     };
     res.render('urls_index', templateVars);
