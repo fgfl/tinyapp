@@ -255,10 +255,11 @@ app.get('/login', (req, res) => {
 
 app.post('/login', (req, res) => {
   const reqEmail = req.body.email;
-  const reqPw = req.body.password;
+  let reqPw = req.body.password;
 
   const user = getUserByEmail(reqEmail);
-  if (user && user.password === reqPw) {
+  if (user && bcrypt.compareSync(reqPw, user.password)) {
+    reqPw = '';
     res
       .cookie(userIdCookie, user.id)
       .redirect('/urls');
