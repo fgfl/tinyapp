@@ -34,8 +34,8 @@ app.use(cookieParser());
 
 // Global Data structure for storage
 const urlDatabase = {
-  'b2xVn2': 'http://www.lighthouselabs.ca',
-  '9sm5xK': 'http://www.google.com',
+  'b2xVn2': {longUrl: 'http://www.lighthouselabs.ca', userId: 'aJ48lW'},
+  '9sm5xK': {longUrl: 'http://www.google.com', userId: 'aJ48lW'},
 };
 
 const users = {
@@ -130,9 +130,11 @@ app.get('/urls/new', (req, res) => {
 
 // === /urls/:shortUrl ===
 app.get('/urls/:shortUrl', (req, res) => {
+  const shortUrl = req.params.shortUrl;
+
   let templateVars = {
-    shortUrl: req.params.shortUrl,
-    longUrl: urlDatabase[req.params.shortUrl],
+    shortUrl: shortUrl,
+    longUrl: urlDatabase[shortUrl].longUrl,
     user: getUser(req.cookies[userIdCookie]),
   };
   res.render('urls_show', templateVars);
@@ -140,7 +142,7 @@ app.get('/urls/:shortUrl', (req, res) => {
 
 app.post('/urls/:shortUrl', (req, res) => {
   const shortUrl = req.params.shortUrl;
-  urlDatabase[shortUrl] = req.body.longUrl;
+  urlDatabase[shortUrl].longUrl = req.body.longUrl;
   const templateVars = {
     urls: urlDatabase,
     user: getUser(req.cookies[userIdCookie]),
@@ -150,7 +152,7 @@ app.post('/urls/:shortUrl', (req, res) => {
 
 // === /u/:shortUrl ===
 app.get('/u/:shortUrl', (req, res) => {
-  const longUrl = urlDatabase[req.params.shortUrl];
+  const longUrl = urlDatabase[req.params.shortUrl].longUrl;
   res.redirect(longUrl);
 });
 
