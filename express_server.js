@@ -244,10 +244,16 @@ app.post('/logout', (req, res) => {
 
 // ==== /register =====
 app.get('/register', (req, res) => {
+  const user = req.user;
   const templateVars = {
-    user: req.user,
+    user: user,
   };
-  res.render('urls_register', templateVars);
+
+  if (user) {
+    res.redirect('/urls');
+  } else {
+    res.render('urls_register', templateVars);
+  }
 });
 
 app.post('/register', (req, res) => {
