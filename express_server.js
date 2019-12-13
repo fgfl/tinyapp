@@ -210,10 +210,16 @@ app.post('/urls/:shortUrl/delete', (req, res) => {
 
 // ==== /login ====
 app.get('/login', (req, res) => {
+  const user = req.user;
   const templateVars = {
-    user: req.user,
+    user: user,
   };
-  res.render('urls_login', templateVars);
+
+  if (user) {
+    res.redirect('/urls');
+  } else {
+    res.render('urls_login', templateVars);
+  }
 });
 
 app.post('/login', (req, res) => {
