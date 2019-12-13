@@ -65,27 +65,29 @@ const users = {
   },
 };
 
-
+app.use((req, res, next) => {
+  const user = getUser(req.session[userIdCookie], users);
+  if (user) {
+    req.user = user;
+  }
+  next();
+});
 
 //==============================
 // Endpoints
 //==============================
 app.get('/', (req, res) => {
-  res.send('Hello!');
-});
-
-app.get('/urls.json', (req, res) => {
-  res.json(urlDatabase);
-});
-
-app.get('/hello', (req, res) => {
-  res.send('<html><body>Hello <b>World</b></body></html>\n');
+  if (req.user) {
+    res.redirect('/urls');
+  } else {
+    res.redirect('/login');
+  }
 });
 
 // === /urls ===
 app.get('/urls', (req, res) => {
   let userUrls = {};
-  const user = getUser(req.session[userIdCookie], users);
+  const user = req.user;
 
   if (user) {
     userUrls = urlsForUser(user.id, urlDatabase);
@@ -100,7 +102,7 @@ app.get('/urls', (req, res) => {
 
 app.post('/urls', (req, res) => {
   const shortUrl = generateRandomString(6);
-  const user = getUser(req.session[userIdCookie], users);
+  const user = req.user;
   urlDatabase[shortUrl] = {
     longUrl: req.body.longUrl,
     userId: user.id,
@@ -111,7 +113,8 @@ app.post('/urls', (req, res) => {
 
 // === /urls/new ====
 app.get('/urls/new', (req, res) => {
-  const user = getUser(req.session[userIdCookie], users);
+  const user = req.user;
+
   if (user) {
     const templateVars = {
       user: user,
@@ -125,10 +128,10 @@ app.get('/urls/new', (req, res) => {
 // === /urls/:shortUrl ===
 app.get('/urls/:shortUrl', (req, res) => {
   const shortUrl = req.params.shortUrl;
-  const user = getUser(req.session[userIdCookie], users);
+  const user = req.user;
 
   if (user) {
-    // need to check this in case user enters short url directly into address bar
+    // need to check this in case user enters short url directly into address bar while logged in
     if (isUserUrl(shortUrl, user, urlDatabase)) {
       let templateVars = {
         shortUrl: shortUrl,
@@ -137,16 +140,16 @@ app.get('/urls/:shortUrl', (req, res) => {
       };
       res.render('urls_show', templateVars);
     } else {
-      res.redirect('/urls');
+      res.status(400).send('Invalid access/URL.');
     }
   } else {
-    res.redirect('/login');
+    res.redirect('/urls');
   }
 
 });
 
 app.post('/urls/:shortUrl', (req, res) => {
-  const user = getUser(req.session[userIdCookie], users);
+  const user = req.user;
   const shortUrl = req.params.shortUrl;
   
   if (user) {
@@ -171,14 +174,19 @@ app.post('/urls/:shortUrl', (req, res) => {
 
 // === /u/:shortUrl ===
 app.get('/u/:shortUrl', (req, res) => {
-  const longUrl = urlDatabase[req.params.shortUrl].longUrl;
-  res.redirect(longUrl);
+  const urlObj = urlDatabase[req.params.shortUrl];
+  if (urlObj) {
+    const longUrl = urlObj.longUrl;
+    res.redirect(longUrl);
+  } else {
+    res.status(400).send('Unkown URL');
+  }
 });
 
 
 // ===== /urls/:shortUrl/delete =====
 app.post('/urls/:shortUrl/delete', (req, res) => {
-  const user = getUser(req.session[userIdCookie], users);
+  const user = req.user;
   const shortUrl = req.params.shortUrl;
 
   if (user) {
@@ -200,7 +208,7 @@ app.post('/urls/:shortUrl/delete', (req, res) => {
 // ==== /login ====
 app.get('/login', (req, res) => {
   const templateVars = {
-    user: getUser(req.session[userIdCookie], users),
+    user: req.user,
   };
   res.render('urls_login', templateVars);
 });
@@ -228,7 +236,7 @@ app.post('/logout', (req, res) => {
 // ==== /register =====
 app.get('/register', (req, res) => {
   const templateVars = {
-    user: getUser(req.session[userIdCookie], users),
+    user: req.user,
   };
   res.render('urls_register', templateVars);
 });

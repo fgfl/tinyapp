@@ -69,6 +69,7 @@ const urlsForUser = (id, urlDatabase) => {
  */
 const isUserUrl = (shortUrl, user, urlDatabase) => {
   if (urlDatabase[shortUrl] && urlDatabase[shortUrl].userId === user.id) {
+    console.log(urlDatabase[shortUrl]);
     return true;
   }
   return false;
