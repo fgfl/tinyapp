@@ -127,5 +127,5 @@
     - ~~redirects to /urls~~
 
 **POST /logout**
-- deletes cookie
-- redirects to /urls
+- ~~deletes cookie~~
+- ~~redirects to /urls~~
