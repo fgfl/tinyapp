@@ -25,6 +25,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
+const methodOverride = require('method-override');
 const {
   isRegisteredEmail,
   getUser,
@@ -38,6 +39,9 @@ const app = express();
 const PORT = 8080; // default port 8080
 
 app.set('view engine', 'ejs');
+
+// override with POST having ?_method=DELETE
+app.use(methodOverride('_method'))
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   name: 'session',
@@ -155,7 +159,7 @@ app.get('/urls/:shortUrl', (req, res) => {
 
 });
 
-app.post('/urls/:shortUrl', (req, res) => {
+app.put('/urls/:shortUrl', (req, res) => {
   const user = req.user;
   const shortUrl = req.params.shortUrl;
   
@@ -192,7 +196,7 @@ app.get('/u/:shortUrl', (req, res) => {
 
 
 // ===== /urls/:shortUrl/delete =====
-app.post('/urls/:shortUrl/delete', (req, res) => {
+app.delete('/urls/:shortUrl', (req, res) => {
   const user = req.user;
   const shortUrl = req.params.shortUrl;
 

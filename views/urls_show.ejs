@@ -23,7 +23,7 @@
 
     <div class="card-footer text-muted">
       <h4 style="text-align:center">Edit</h4>
-      <form class="form-inline" method="POST" action="/urls/<%= shortUrl %>">
+      <form class="form-inline" method="POST" action="/urls/<%= shortUrl %>?_method=PUT">
         <div style="margin:0 auto">
           <label for="longURL">
             Enter a new long URL:
