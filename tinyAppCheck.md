@@ -110,10 +110,10 @@
 
 **POST /login**
 - if email and password params match an existing user:
-    - sets a cookie
-    - redirects to /urls
+    - ~~sets a cookie~~
+    - ~~redirects to /urls~~
 - if email and password params don't match an existing user:
-    - returns HTML with a relevant error message
+    - ~~returns HTML with a relevant error message~~
 
 **POST /register**
 - if email or password are empty:
