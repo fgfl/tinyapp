@@ -32,6 +32,7 @@ const {
   getUserByEmail,
   urlsForUser,
   isUserUrl,
+  isValidUrl,
 } = require('./helpers');
 
 const app = express();
@@ -101,14 +102,18 @@ app.get('/urls', (req, res) => {
 });
 
 app.post('/urls', (req, res) => {
-  const shortUrl = generateRandomString(6);
   const user = req.user;
-  urlDatabase[shortUrl] = {
-    longUrl: req.body.longUrl,
-    userId: user.id,
-  };
+  if (user) {
+    const shortUrl = generateRandomString(6);
+    urlDatabase[shortUrl] = {
+      longUrl: req.body.longUrl,
+      userId: user.id,
+    };
 
-  res.redirect(`/urls/${shortUrl}`);
+    res.redirect(`/urls/${shortUrl}`);
+  } else {
+    res.sendStatus(401);
+  }
 });
 
 // === /urls/new ====
@@ -132,15 +137,17 @@ app.get('/urls/:shortUrl', (req, res) => {
 
   if (user) {
     // need to check this in case user enters short url directly into address bar while logged in
-    if (isUserUrl(shortUrl, user, urlDatabase)) {
+    if (!isValidUrl(shortUrl, urlDatabase)) {
+      res.status(400).send('Invalid URL.');
+    } else if (!isUserUrl(shortUrl, user, urlDatabase)){
+      res.sendStatus(403);
+    } else {
       let templateVars = {
         shortUrl: shortUrl,
         longUrl: urlDatabase[shortUrl].longUrl,
         user: user,
       };
       res.render('urls_show', templateVars);
-    } else {
-      res.status(400).send('Invalid access/URL.');
     }
   } else {
     res.redirect('/urls');
@@ -168,7 +175,7 @@ app.post('/urls/:shortUrl', (req, res) => {
       res.redirect('/urls');
     }
   } else {
-    res.redirect('/login');
+    res.sendStatus(401);
   }
 });
 
@@ -192,16 +199,12 @@ app.post('/urls/:shortUrl/delete', (req, res) => {
   if (user) {
     if (isUserUrl(shortUrl, user, urlDatabase)) {
       delete urlDatabase[shortUrl];
-      const templateVars = {
-        urls: urlsForUser(user.id, urlDatabase),
-        user: user,
-      };
-      res.render('urls_index', templateVars);
     } else {
-      res.redirect('/urls');
+      res.sendStatus(403);
     }
+    res.redirect('/urls');
   } else {
-    res.redirect('/login');
+    res.sendStatus(401);
   }
 });
 

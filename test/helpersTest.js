@@ -10,6 +10,7 @@ const {
   getUser,
   getUserByEmail,
   urlsForUser,
+  isValidUrl,
   isUserUrl,
 } = require('../helpers');
 
@@ -96,6 +97,17 @@ describe('#urlsForUser()', () => {
     const id = 'someUser';
     const expectedOutput = {};
     assert.deepEqual(urlsForUser(id, testUrlsDb), expectedOutput);
+  });
+});
+
+describe('#isValidUrl()', () => {
+  it('should return true if the url is in database', () => {
+    const shortUrl = 'short1';
+    assert.isTrue(isValidUrl(shortUrl, testUrlsDb));
+  });
+  it('should return false if the url is not in the database', () => {
+    const shortUrl = 'invalidShortUrl';
+    assert.isNotTrue(isValidUrl(shortUrl, testUrlsDb));
   });
 });
 

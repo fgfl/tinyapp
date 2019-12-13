@@ -61,6 +61,19 @@ const urlsForUser = (id, urlDatabase) => {
 };
 
 /**
+ * Checks if the url is in our database
+ * @param {string} shortUrl key of urlDatabase
+ * @param {object} urlDatabase url database
+ * @returns {boolean} true if short url is in the database. false otherwise
+ */
+const isValidUrl = (shortUrl, urlDatabase) => {
+  if (urlDatabase[shortUrl]) {
+    return true;
+  }
+  return false;
+};
+
+/**
  * Checks if the shortUrl belongs to the user
  * @param {string} shortUrl key of urlDatabase
  * @param {object} user user object
@@ -68,12 +81,12 @@ const urlsForUser = (id, urlDatabase) => {
  * @returns {boolean} true if the url's user id is user.id. false otherwise
  */
 const isUserUrl = (shortUrl, user, urlDatabase) => {
-  if (urlDatabase[shortUrl] && urlDatabase[shortUrl].userId === user.id) {
-    console.log(urlDatabase[shortUrl]);
+  if (isValidUrl(shortUrl, urlDatabase) && urlDatabase[shortUrl].userId === user.id) {
     return true;
   }
   return false;
 };
+
 
 module.exports = {
   isRegisteredEmail,
@@ -81,4 +94,5 @@ module.exports = {
   getUserByEmail,
   urlsForUser,
   isUserUrl,
+  isValidUrl,
 };
