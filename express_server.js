@@ -139,7 +139,7 @@ app.get('/urls/:shortUrl', (req, res) => {
     // need to check this in case user enters short url directly into address bar while logged in
     if (!isValidUrl(shortUrl, urlDatabase)) {
       res.status(400).send('Invalid URL.');
-    } else if (!isUserUrl(shortUrl, user, urlDatabase)){
+    } else if (!isUserUrl(shortUrl, user, urlDatabase)) {
       res.sendStatus(403);
     } else {
       let templateVars = {
