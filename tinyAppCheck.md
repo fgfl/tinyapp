@@ -117,14 +117,14 @@
 
 **POST /register**
 - if email or password are empty:
-    - returns HTML with a relevant error message
+    - ~~returns HTML with a relevant error message~~
 - if email already exists:
-    - returns HTML with a relevant error message
+    - ~~returns HTML with a relevant error message~~
 - otherwise:
-    - creates a new user
-    - encrypts the new user's password with bcrypt
-    - sets a cookie
-    - redirects to /urls
+    - ~~creates a new user~~
+    - ~~encrypts the new user's password with bcrypt~~
+    - ~~sets a cookie~~
+    - ~~redirects to /urls~~
 
 **POST /logout**
 - deletes cookie
