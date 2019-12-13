@@ -66,6 +66,7 @@ const users = {
   },
 };
 
+// set user from cookie data to use in later middleware
 app.use((req, res, next) => {
   const user = getUser(req.session[userIdCookie], users);
   if (user) {
@@ -90,6 +91,7 @@ app.get('/urls', (req, res) => {
   let userUrls = {};
   const user = req.user;
 
+  console.log(user)
   if (user) {
     userUrls = urlsForUser(user.id, urlDatabase);
   }
