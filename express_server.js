@@ -40,7 +40,6 @@ const PORT = 8080; // default port 8080
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
-// app.use(cookieParser());
 app.use(cookieSession({
   name: 'session',
   keys: ['allowa', 'saiekdl', '3k3kd9w-gh', 'kd92-vnsl', '0dkdj1vlas'],
